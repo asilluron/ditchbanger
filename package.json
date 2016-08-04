@@ -1,0 +1,24 @@
+{
+  "name": "ditchbanger",
+  "version": "0.0.0",
+  "description": "Opinionated worker/microservice base",
+  "main": "Service.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asilluron/ditchbanger.git"
+  },
+  "author": "Andrew Silluron",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/asilluron/ditchbanger/issues"
+  },
+  "homepage": "https://github.com/asilluron/ditchbanger#readme",
+  "dependencies": {
+    "jackrabbit": "^4.3.0",
+    "logfmt": "^1.2.0",
+    "mongoose": "^4.5.8"
+  }
+}
