@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/asilluron/ditchbanger#readme",
   "dependencies": {
+    "bluebird": "^2.10.2",
     "jackrabbit": "^4.3.0",
     "logfmt": "^1.2.0",
-    "mongoose": "^4.5.8"
+    "mongoose": "^4.4.20",
+    "save": "^2.3.0"
   }
 }
