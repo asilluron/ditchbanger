@@ -41,7 +41,7 @@ class Service extends EventEmitter {
   _onConnected () {
     this.qConfigs.forEach(qConfig => {
       // TODO: make this more programmatic, so we just shave off handler and feed in the whole config
-      let newQueue = this.connection.exchange.queue({name: qConfig.name, durable: true});
+      let newQueue = this.connection.exchange.queue({name: qConfig.name, durable: qConfig.durable});
       this.namedQueues.set(qConfig.name, newQueue);
       this._onCreate();
     });
