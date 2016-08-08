@@ -27,9 +27,16 @@ class Service extends EventEmitter {
     return this.mongoose;
   }
 
+  /*
+  * @throws {Error} handler must be defined for all queues
+  *
+  */
   start () {
     this.qConfigs.forEach(queueConfig => {
       let queue = this.namedQueues.get(queueConfig.name);
+      if (typeof queueConfig.handler === 'function') {
+        throw new Error('You must defined a handler for all queues');
+      }
       queue.consume(queueConfig.handler);
     });
   }
