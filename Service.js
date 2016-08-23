@@ -12,7 +12,7 @@ class Service extends EventEmitter {
     this.namedQueues = new Map(); // Exchange name > exchange
     this.connection = new Connector(mongoUrl, rabbitUrl);
     this.mongoose = this.connection.getMongooseReference();
-    this.connection.once('ready', this._onConnected.bind(this));
+    this.connection.once('ready', this._onReady.bind(this));
     this.connection.once('lost', this._onLost.bind(this));
   }
 
@@ -21,6 +21,12 @@ class Service extends EventEmitter {
       throw new Error('queueConfigs must be an array of queue config objects');
     }
     this.qConfigs = queueConfigs;
+
+    this.qConfigs.forEach(qConfig => {
+      // TODO: make this more programmatic, so we just shave off handler and feed in the whole config
+      let newQueue = this.connection.exchange.queue({name: qConfig.name, durable: qConfig.durable});
+      this.namedQueues.set(qConfig.name, newQueue);
+    });
   }
 
   getMongooseReference () {
@@ -34,7 +40,7 @@ class Service extends EventEmitter {
   start () {
     this.qConfigs.forEach(queueConfig => {
       let queue = this.namedQueues.get(queueConfig.name);
-      if (typeof queueConfig.handler === 'function') {
+      if (typeof queueConfig.handler !== 'function') {
         throw new Error('You must defined a handler for all queues');
       }
       queue.consume(queueConfig.handler);
@@ -45,24 +51,9 @@ class Service extends EventEmitter {
     this.connection.exchange.publish(payload, { key: queueName });
   }
 
-  _onConnected () {
-    this.qConfigs.forEach(qConfig => {
-      // TODO: make this more programmatic, so we just shave off handler and feed in the whole config
-      let newQueue = this.connection.exchange.queue({name: qConfig.name, durable: qConfig.durable});
-      this.namedQueues.set(qConfig.name, newQueue);
-      this._onCreate();
-    });
-  }
-
   _onReady () {
     logger.log({ type: 'info', msg: 'app.ready' });
     this.emit('ready');
-  }
-
-  _onCreate () {
-    if (++this.queues === this.qConfigs.length) {
-      this._onReady();
-    }
   }
 
   _onLost () {
