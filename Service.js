@@ -10,8 +10,11 @@ class Service extends EventEmitter {
     this.qConfigs = [];
     this.queues = 0;
     this.namedQueues = new Map(); // Exchange name > exchange
-    this.connection = new Connector(mongoUrl, rabbitUrl);
-    this.mongoose = this.connection.getMongooseReference();
+    if (!global.connection) {
+      global.connection = new Connector(mongoUrl, rabbitUrl);
+    }
+    this.connection = global.connection;
+    this.mongoose = global.connection.getMongooseReference();
     this.connection.once('ready', this._onReady.bind(this));
     this.connection.once('lost', this._onLost.bind(this));
   }
