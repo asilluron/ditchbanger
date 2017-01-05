@@ -20,7 +20,8 @@
     "bluebird": "^2.10.2",
     "jackrabbit": "^4.3.0",
     "logfmt": "^1.2.0",
-    "mongoose": "^4.4.20",
+    "mongodb": "^2.2.19",
+    "mongoose": "^4.7.6",
     "save": "^2.3.0"
   }
 }
