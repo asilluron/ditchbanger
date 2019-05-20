@@ -1,23 +1,27 @@
 'use strict';
 
-var mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
-var jackrabbit = require('jackrabbit');
+import { Mongoose } from "mongoose";
+
+const mongoose = require('mongoose');
+const jackrabbit = require('jackrabbit');
 const logger = require('logfmt');
-var EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('events').EventEmitter;
+const TOTAL_CONNECTION_COUNT = 2;
 
 class Connector extends EventEmitter {
-  constructor (mongoUrl, rabbitUrl) {
+  constructor (mongoUrl:string, rabbitUrl:string) {
     super();
     this.readyCount = 0;
 
-    this.db = mongoose.connect(mongoUrl, err => {
-      if (err) {
-        logger.log({ type: 'error', msg: err, service: 'mongodb' });
-      } else {
-        logger.log({ type: 'info', msg: 'connected', service: 'mongodb' });
-        this._ready();
-      }
+    mongoose.connect(mongoUrl, {useNewUrlParser: true});
+
+    var db = mongoose.connection;
+    db.on('error', (err:string) => {
+      logger.log({ type: 'error', msg: err, service: 'mongodb' });
+    });
+    db.once('open', () => {
+      logger.log({ type: 'info', msg: 'connected', service: 'mongodb' });
+      this._ready();
     });
 
     this.queue = jackrabbit(rabbitUrl)
@@ -25,7 +29,7 @@ class Connector extends EventEmitter {
         logger.log({ type: 'info', msg: 'connected', service: 'rabbitmq' });
         this._ready();
       })
-      .on('error', err => {
+      .on('error', (err:string) => {
         logger.log({ type: 'error', msg: err, service: 'rabbitmq' });
       })
       .on('disconnected', () => {
@@ -36,12 +40,12 @@ class Connector extends EventEmitter {
     this.exchange = this.queue.default();
   }
 
-  getMongooseReference () {
+  getMongooseReference () : Mongoose{
     return mongoose;
   }
 
   _ready () {
-    if (++this.readyCount === 2) {
+    if (++this.readyCount === TOTAL_CONNECTION_COUNT) {
       this.emit('ready');
     }
   }

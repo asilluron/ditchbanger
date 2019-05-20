@@ -2,9 +2,10 @@
   "name": "mongo-microservice",
   "version": "0.1.1",
   "description": "Opinionated worker/microservice base",
-  "main": "Service.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -17,11 +18,19 @@
   },
   "homepage": "https://github.com/asilluron/mongo-microservice#readme",
   "dependencies": {
-    "bluebird": "^2.10.2",
-    "jackrabbit": "^4.3.0",
+    "@types/mongoose": "^5.5.1",
+    "@types/node": "^12.0.2",
+    "jackrabbit": "^4.4.0",
     "logfmt": "^1.2.0",
-    "mongodb": "^2.2.19",
-    "mongoose": "^4.7.6",
+    "mongodb": "^3.2.5",
+    "mongoose": "^5.5.10",
     "save": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.13",
+    "dotenv": "^8.0.0",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.4.5"
   }
 }

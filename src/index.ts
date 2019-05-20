@@ -1,38 +1,43 @@
 'use strict';
 
+import { Mongoose } from "mongoose";
+
 var logger = require('logfmt');
 var EventEmitter = require('events').EventEmitter;
 let Connector = require('./lib/Connector');
 
-class Service extends EventEmitter {
-  constructor (mongoUrl, rabbitUrl) {
+export interface MMConfig {
+  name: string,
+  durable: boolean,
+  handler: Function
+}
+
+export class Service extends EventEmitter {
+  constructor (mongoUrl:string, rabbitUrl:string) {
     super();
     this.qConfigs = [];
     this.queues = 0;
     this.namedQueues = new Map(); // Exchange name > exchange
-    if (!global.connection) {
-      global.connection = new Connector(mongoUrl, rabbitUrl);
-    }
-    this.connection = global.connection;
-    this.mongoose = global.connection.getMongooseReference();
+    this.connection = new Connector(mongoUrl, rabbitUrl);
+    this.mongoose = this.connection.getMongooseReference();
     this.connection.once('ready', this._onReady.bind(this));
     this.connection.once('lost', this._onLost.bind(this));
   }
 
-  addQueues (queueConfigs) {
+  addQueues (queueConfigs:Array<MMConfig>) {
     if (!Array.isArray(queueConfigs)) {
       throw new Error('queueConfigs must be an array of queue config objects');
     }
     this.qConfigs = queueConfigs;
 
-    this.qConfigs.forEach(qConfig => {
+    this.qConfigs.forEach((qConfig:MMConfig) => {
       // TODO: make this more programmatic, so we just shave off handler and feed in the whole config
       let newQueue = this.connection.exchange.queue({name: qConfig.name, durable: qConfig.durable});
       this.namedQueues.set(qConfig.name, newQueue);
     });
   }
 
-  getMongooseReference () {
+  getMongooseReference () : Mongoose {
     return this.mongoose;
   }
 
@@ -41,16 +46,13 @@ class Service extends EventEmitter {
   *
   */
   start () {
-    this.qConfigs.forEach(queueConfig => {
+    this.qConfigs.forEach((queueConfig:MMConfig) => {
       let queue = this.namedQueues.get(queueConfig.name);
-      if (typeof queueConfig.handler !== 'function') {
-        throw new Error('You must defined a handler for all queues');
-      }
       queue.consume(queueConfig.handler);
     });
   }
 
-  publish (queueName, payload) {
+  publish (queueName: string, payload:object) {
     this.connection.exchange.publish(payload, { key: queueName });
   }
 
@@ -65,11 +67,10 @@ class Service extends EventEmitter {
   }
 
   stop () {
-    this.qConfigs.forEach(queueConfig => {
+    this.qConfigs.forEach((queueConfig:MMConfig) => {
       this.connection.queue.ignore(queueConfig.name);
     });
   }
 
 }
 
-module.exports = Service;
