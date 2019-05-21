@@ -18,15 +18,15 @@ class Connector extends EventEmitter {
             logger.log({ type: 'info', msg: 'connected', service: 'mongodb' });
             this._ready();
         });
-        this.queue = jackrabbit(rabbitUrl)
-            .on('connected', () => {
+        this.queue = jackrabbit(rabbitUrl);
+        this.queue.once('connected', () => {
             logger.log({ type: 'info', msg: 'connected', service: 'rabbitmq' });
             this._ready();
         })
             .on('error', (err) => {
             logger.log({ type: 'error', msg: err, service: 'rabbitmq' });
         })
-            .on('disconnected', () => {
+            .once('disconnected', () => {
             logger.log({ type: 'error', msg: 'disconnected', service: 'rabbitmq' });
             this._lost();
         });
