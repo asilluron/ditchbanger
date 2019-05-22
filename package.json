@@ -1,6 +1,6 @@
 {
   "name": "mongo-microservice",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Opinionated worker/microservice base",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
