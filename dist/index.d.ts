@@ -2,8 +2,8 @@ import { Mongoose } from "mongoose";
 declare var EventEmitter: any;
 export interface MMConfig {
     name: string;
-    durable: boolean;
-    handler: Function;
+    durable?: boolean;
+    handler?: Function;
 }
 export declare class Service extends EventEmitter {
     constructor(mongoUrl: string, rabbitUrl: string);

@@ -8,8 +8,8 @@ let Connector = require('./lib/Connector');
 
 export interface MMConfig {
   name: string,
-  durable: boolean,
-  handler: Function
+  durable?: boolean,
+  handler?: Function
 }
 
 export class Service extends EventEmitter {
